@@ -7,7 +7,6 @@ export default function ViewProfile({ user, isOpen, toggleDialog }) {
   const [userData, setUserData] = useState();
 
   const updateFormDataHandler = (event, inputKey) => {
-    console.log("now here");
     setUserData((prevState) => ({
       ...prevState,
       [`${inputKey}`]: event.target.value,

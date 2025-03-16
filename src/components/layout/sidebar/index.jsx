@@ -61,7 +61,6 @@ export default function Sidebar() {
       location.pathname.includes("/info");
 
     setIsHidden(hiddenValue);
-    console.log(isHidden);
   }, [location.pathname]);
 
   return (

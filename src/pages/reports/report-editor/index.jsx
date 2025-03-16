@@ -16,7 +16,6 @@ export default function ReportEditorPage() {
   };
 
   useEffect(() => {
-    console.log("id", location.state);
     const pathName = location.pathname;
     if (pathName.includes("templates") && id) {
       setSocketIdentifier("template");

@@ -65,11 +65,10 @@ export default function AuthPage() {
           phoneNumber: newUserData.phone,
         },
       });
-      window.location.reload();
-      navigate("/info");
+      navigate("/info", { state: { newUser: true } });
     } catch (e) {
       // Open Dialog Here
-      console.log("now error", e);
+      console.log("Error Occurred: ", e);
       setDialog({
         state: true,
         content: "Please check if all the fields entered are correct!",
@@ -90,7 +89,7 @@ export default function AuthPage() {
       window.location.reload();
       navigate("/");
     } catch (e) {
-      console.log("now error", e);
+      console.log("Error Occurred: ", e);
       setDialog({
         state: true,
         content: "Please check if all the fields entered are correct!",

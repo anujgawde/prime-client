@@ -1,10 +1,21 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import BaseButton from "../../components/base/BaseButton";
+import { useEffect } from "react";
+
 export default function InfoPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const navigateToDashboard = () => {
     navigate("/");
   };
+
+  useEffect(() => {
+    if (location.state?.newUser) {
+      const updatedState = { ...location.state, newUser: false };
+      window.history.replaceState(updatedState, "");
+      window.location.reload();
+    }
+  }, []);
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       <h1 className="text-4xl py-6 text-center fixed top-0 flex items-center justify-center w-full">
@@ -19,13 +30,6 @@ export default function InfoPage() {
           <section className="mb-8">
             <h2 className="text-2xl font-semibold mb-4">Welcome</h2>
             <p className="text-muted-foreground">
-              {/* Prime is a powerful tool designed to streamline the creation of
-              daily document templates. Users can easily update content in real
-              time and capture images directly to their documents. The
-              application also includes an insightful statistics dashboard,
-              providing a comprehensive view of the number of templates and
-              documents created over the year, along with other key performance
-              metrics to help users track their document activity and usage. */}
               Prime is a powerful tool designed to simplify and optimize the
               creation and management of document templates used in everyday
               business operations. With a user-friendly interface and powerful

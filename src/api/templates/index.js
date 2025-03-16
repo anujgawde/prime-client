@@ -50,6 +50,5 @@ export const getMostUsedTemplates = async (userId) => {
     userId,
   };
   const response = await api.post(`/templates/most-used`, data);
-  console.log(response);
   return response.data;
 };

@@ -96,7 +96,6 @@ export default function HomePage() {
   const getDashboardData = async (userId) => {
     // Get 10 most recent reports by user
     const recentReportsResponse = await getRecentReports(userId);
-    console.log(recentReportsResponse);
     setRecentReports(recentReportsResponse);
 
     // Get 5 most used templates by user
@@ -108,9 +107,6 @@ export default function HomePage() {
 
   useEffect(() => {
     getDashboardData(auth.currentUser._id);
-    // fetchRecentDocuments(auth.currentUser._id);
-    // fetchMostUsedTemplates(auth.currentUser._id);
-    // fetchAggregateDocuments(auth.currentUser._id);
   }, []);
   return (
     <div className="p-4 md:p-8 h-full">

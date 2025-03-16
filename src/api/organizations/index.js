@@ -63,7 +63,6 @@ export const getUserInvitations = async (userId) => {
 
 export const createOrganization = async (organizationData) => {
   try {
-    console.log(organizationData);
     const response = await api.post(
       `/organizations/create-organization`,
       organizationData

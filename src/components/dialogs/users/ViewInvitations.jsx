@@ -9,7 +9,6 @@ import BaseInput from "../../base/BaseInput";
 export default function ViewInvitations({ user, isOpen, toggleDialog }) {
   const dispatch = useDispatch();
   const invites = useSelector((state) => state.invites.invites);
-  console.log(invites);
 
   const respondToInviteHandler = async (data) => {
     dispatch(responseToInvitation(data));
@@ -22,7 +21,6 @@ export default function ViewInvitations({ user, isOpen, toggleDialog }) {
     dispatch(loadInvites(user._id));
   }, [dispatch]);
 
-  console.log(invites);
   return (
     <div
       onClick={toggleDialog}

@@ -7,7 +7,6 @@ import { v4 as uuidv4 } from "uuid";
 
 export default function CreateReport({ text, toggleDialog, user }) {
   const location = useLocation();
-  console.log(location);
   const [activeTemplate, setActiveTemplate] = useState({});
 
   const [templates, setTemplates] = useState({

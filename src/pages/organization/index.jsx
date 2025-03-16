@@ -164,7 +164,6 @@ export default function MyOrganizationPage() {
     employeeOrganization,
     demoterOrganization
   ) => {
-    console.log(employeeOrganization);
     const newRole =
       employeeOrganization.roles === "super-admin" ? "admin" : "member";
 
