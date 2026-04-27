@@ -1,20 +1,17 @@
 import { useEffect, useState } from "react";
 import BaseButton from "../base/BaseButton";
-import BaseInput from "../base/BaseInput";
 import { editOrganization } from "../../api/organizations";
+import {
+  dialogFieldWrap,
+  dialogInputCls,
+  dialogLabelCls,
+} from "../base/DialogShell";
 
-export default function EditOrganization({
-  organization,
-  editorId,
-  editorRole,
-}) {
+export default function EditOrganization({ organization, editorId, editorRole }) {
   const [organizationData, setOrganizationData] = useState();
-  const updateFormDataHandler = (event, inputKey) => {
-    setOrganizationData((prevState) => ({
-      ...prevState,
-      [`${inputKey}`]: event.target.value,
-    }));
-  };
+
+  const update = (event, key) =>
+    setOrganizationData((s) => ({ ...s, [key]: event.target.value }));
 
   const editOrganizationHandler = async () => {
     await editOrganization({
@@ -34,49 +31,37 @@ export default function EditOrganization({
   }, []);
 
   return (
-    <div className="w-full">
-      <div className="space-y-2 flex-1">
-        <div className="flex items-center justify-between w-full space-x-2">
-          <div className="w-1/2">
-            <BaseInput
-              value={organizationData?.name}
-              name="name"
-              placeHolder=""
-              label="Organization Name"
-              errorText=""
-              onChange={(event) => updateFormDataHandler(event, "name")}
-              type={undefined}
-            />
-          </div>
-          <div className="w-1/2">
-            {" "}
-            <BaseInput
-              value={organizationData?.emailDomain}
-              name="emailDomain"
-              placeHolder=""
-              label="Email Domain"
-              errorText=""
-              onChange={(event) => updateFormDataHandler(event, "emailDomain")}
-              type={undefined}
-            />
-          </div>
-        </div>
-        <BaseInput
-          value={organizationData?.address}
-          name="address"
-          placeHolder=""
-          label="Address"
-          errorText=""
-          onChange={(event) => updateFormDataHandler(event, "address")}
-          type={undefined}
-        />{" "}
-        <div className="flex justify-start">
-          <BaseButton
-            onClick={editOrganizationHandler}
-            buttonText={"Update Organization"}
-            customClasses={"my-2"}
+    <div className="flex flex-col gap-3">
+      <div className="flex gap-2.5">
+        <div className={`${dialogFieldWrap} flex-1`}>
+          <label className={dialogLabelCls}>Organization Name</label>
+          <input
+            value={organizationData?.name ?? ""}
+            onChange={(e) => update(e, "name")}
+            className={dialogInputCls}
           />
         </div>
+        <div className={`${dialogFieldWrap} flex-1`}>
+          <label className={dialogLabelCls}>Email Domain</label>
+          <input
+            value={organizationData?.emailDomain ?? ""}
+            onChange={(e) => update(e, "emailDomain")}
+            className={dialogInputCls}
+          />
+        </div>
+      </div>
+      <div className={dialogFieldWrap}>
+        <label className={dialogLabelCls}>Address</label>
+        <input
+          value={organizationData?.address ?? ""}
+          onChange={(e) => update(e, "address")}
+          className={dialogInputCls}
+        />
+      </div>
+      <div>
+        <BaseButton onClick={editOrganizationHandler} size="sm">
+          Update Organization
+        </BaseButton>
       </div>
     </div>
   );

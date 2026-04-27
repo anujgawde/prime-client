@@ -1,5 +1,4 @@
-import { useState } from "react";
-import BaseInput from "../../base/BaseInput";
+import DialogShell, { CancelButton } from "../../base/DialogShell";
 import BaseButton from "../../base/BaseButton";
 
 export default function BaseConfirmation({
@@ -9,36 +8,50 @@ export default function BaseConfirmation({
   content,
   primaryButtonText,
   secondaryButtonText,
+  destructive = false,
 }) {
   return (
-    <div
-      onClick={secondaryAction}
-      className="z-50 fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center"
+    <DialogShell
+      title={title}
+      toggleDialog={secondaryAction}
+      width="max-w-sm"
+      footer={
+        <>
+          <CancelButton onClick={secondaryAction}>
+            {secondaryButtonText}
+          </CancelButton>
+          <BaseButton
+            variant={destructive ? "destructive" : "primary"}
+            onClick={primaryAction}
+          >
+            {primaryButtonText}
+          </BaseButton>
+        </>
+      }
     >
-      <div
-        className="bg-white rounded-lg shadow-lg w-11/12 md:w-3/5 lg:w-1/2 xl:w-1/3 p-4 relative  justify-between flex flex-col space-y-8"
-        onClick={(e) => e.stopPropagation()} // Prevent click event from bubbling up to the parent div
-      >
-        <div className="font-medium  text-2xl ">{title}</div>
-        {/* Dialog Content  */}
-        <div className="space-y-2 flex-1 flex flex-col justify-between">
-          <div>{content}</div>
-          <div className=" justify-center flex items-center space-x-4">
-            <button
-              onClick={secondaryAction}
-              className="rounded-md text-center py-2 px-4 md:px-8 md:py-2 bg-gray-300 text-black font-semibold border-none ${customClasses} text-sm md:text-base"
-            >
-              {secondaryButtonText}
-            </button>
-
-            <BaseButton
-              onClick={primaryAction}
-              buttonText={primaryButtonText}
-              customClasses={"my-2"}
+      <div className="flex gap-3 items-start">
+        <div
+          className={`w-8 h-8 rounded-xs flex items-center justify-center flex-shrink-0 ${
+            destructive
+              ? "bg-error-subtle text-error-base"
+              : "bg-primary-subtle text-primary-base"
+          }`}
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path
+              d="M8 2L14 13H2L8 2Z"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinejoin="round"
             />
-          </div>
+            <line x1="8" y1="6" x2="8" y2="9.5" stroke="currentColor" strokeWidth="1.5" />
+            <circle cx="8" cy="11.5" r="0.75" fill="currentColor" />
+          </svg>
+        </div>
+        <div className="text-[13px] text-text-secondary leading-relaxed">
+          {content}
         </div>
       </div>
-    </div>
+    </DialogShell>
   );
 }

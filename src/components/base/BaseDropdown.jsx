@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import BaseButton from "./BaseButton";
+import { ChevronDown } from "./Icons";
 
 export default function BaseDropdown({ children, activeDocument }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -9,7 +9,6 @@ export default function BaseDropdown({ children, activeDocument }) {
     setIsOpen(!isOpen);
   };
 
-  // Close dropdown if clicked outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -24,20 +23,18 @@ export default function BaseDropdown({ children, activeDocument }) {
   }, [dropdownRef]);
 
   return (
-    <div className="relative inline-block" ref={dropdownRef}>
+    <div className="relative inline-block w-full" ref={dropdownRef}>
       <div
-        className="items-center flex justify-between w-full p-2 cursor-pointer border"
+        className="items-center flex justify-between w-full px-2.5 py-[7px] cursor-pointer bg-bg-surface border border-border-default rounded-xs text-[13px] text-text-primary"
         onClick={toggleDropdown}
       >
         <div>{activeDocument?.name ?? "Select a Template"}</div>
-        <div>
-          <img src="/icons/navbar/chevron-down.svg" />
-        </div>
+        <ChevronDown className="text-text-muted" />
       </div>
       {isOpen && (
         <div
           onClick={toggleDropdown}
-          className="absolute right-0 left-0 mt-1 w-full bg-white border border-gray-100 shadow-lg z-10 rounded max-h-64 overflow-y-auto"
+          className="absolute right-0 left-0 mt-1 w-full bg-bg-surface border border-border-subtle shadow-ds-md z-10 rounded-xs max-h-64 overflow-y-auto"
         >
           {children}
         </div>

@@ -1,8 +1,17 @@
 import React from "react";
 
-const BaseLoader = () => {
+const BaseLoader = ({ size = 28 }) => {
+  const borderWidth = size > 20 ? 2.5 : 2;
   return (
-    <div className="w-12 h-12 border-4 border-t-4 border-gray-200 border-t-[#5465FF] rounded-full animate-spin"></div>
+    <div
+      className="rounded-full border-border-default border-t-primary-base animate-spin"
+      style={{
+        width: size,
+        height: size,
+        borderWidth,
+        borderTopWidth: borderWidth,
+      }}
+    />
   );
 };
 

@@ -1,9 +1,9 @@
 import "./App.css";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
+import LandingPage from "./pages/landing";
 import HomePage from "./pages/home";
 import AuthPage from "./pages/auth";
 import ProtectedRoute from "./components/ProtectedRoute";
-
 import TemplatesPage from "./pages/templates";
 import TemplateEditorPage from "./pages/templates/template-editor";
 import InfoPage from "./pages/info";
@@ -14,19 +14,12 @@ import MyOrganizationPage from "./pages/organization";
 
 function App() {
   return (
-    <div className="h-screen overflow-y-auto">
+    <div className="h-screen overflow-hidden">
       <Routes>
-        <Route path="/" element={<Navigate to={`/dashboard`} />} />
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/auth" element={<AuthPage />} />
         <Route path="/info" element={<InfoPage />} />
         <Route path="/coming-soon" element={<ComingSoonPage />} />
-        <Route
-          path="/auth"
-          element={
-            <ProtectedRoute>
-              <AuthPage />
-            </ProtectedRoute>
-          }
-        />
         <Route
           path="/dashboard"
           element={

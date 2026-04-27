@@ -3,38 +3,65 @@ import BaseButton from "./BaseButton";
 
 export default function BaseDialog({
   text,
-  type,
-  size,
   isOpen,
   toggleDialog,
   title,
+  subtitle,
+  children,
+  footer,
+  width = "w-full max-w-md",
 }) {
   if (!isOpen) {
     return null;
   }
 
-  const closeDialog = () => {
-    toggleDialog();
-  };
   return (
     <div
-      onClick={closeDialog}
-      className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center"
+      onClick={toggleDialog}
+      className="fixed inset-0 z-50 bg-text-primary/40 backdrop-blur-sm flex justify-center items-center p-4"
     >
       <div
-        className="bg-white rounded-lg shadow-lg w-5/6 md:w-1/2 lg:w-1/3 p-4 relative z-50 h-1/4 flex flex-col justify-between"
-        onClick={(e) => e.stopPropagation()} // Prevent click event from bubbling up to the parent div
+        onClick={(e) => e.stopPropagation()}
+        className={`${width} bg-bg-surface rounded-md shadow-ds-xl border border-border-subtle overflow-hidden font-sans`}
       >
-        {/* Dialog Header */}
-        <div className="text-lg font-semibold md:text-2xl">{title}</div>
+        {(title || subtitle) && (
+          <div className="px-5 pt-4 pb-3.5 border-b border-border-subtle">
+            <div className="flex items-center justify-between">
+              {title && (
+                <span className="font-semibold text-[15px] text-text-primary">
+                  {title}
+                </span>
+              )}
+              <button
+                onClick={toggleDialog}
+                className="w-6 h-6 bg-transparent border-none cursor-pointer text-text-muted text-lg flex items-center justify-center rounded-xs hover:bg-bg-hover hover:text-text-primary"
+              >
+                ×
+              </button>
+            </div>
+            {subtitle && (
+              <p className="text-xs text-text-muted mt-1 leading-relaxed">
+                {subtitle}
+              </p>
+            )}
+          </div>
+        )}
 
-        {/* Dialog Content */}
-        <div className="text-sm md:text-base">{text}</div>
+        <div className="p-5">{children ?? text}</div>
 
-        {/* Dialog CTA */}
-        <div className="flex justify-end items-center">
-          <BaseButton buttonText="Close" onClick={closeDialog} />
-        </div>
+        {footer !== undefined ? (
+          footer && (
+            <div className="px-5 pt-3 pb-4 border-t border-border-subtle flex justify-end gap-2">
+              {footer}
+            </div>
+          )
+        ) : (
+          <div className="px-5 pt-3 pb-4 border-t border-border-subtle flex justify-end gap-2">
+            <BaseButton variant="secondary" onClick={toggleDialog}>
+              Close
+            </BaseButton>
+          </div>
+        )}
       </div>
     </div>
   );

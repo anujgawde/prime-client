@@ -1,42 +1,28 @@
 import React, { useEffect, useRef, useState } from "react";
 
-const BaseMenu = ({ iconContainerClass, iconSrc, children }) => {
+const BaseMenu = ({ iconContainerClass, iconSrc, trigger, children }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  const toggleDropdown = () => {
-    setIsOpen(!isOpen);
-  };
-
-  const closeDropdown = () => {
-    setIsOpen(false);
-  };
+  const toggleDropdown = () => setIsOpen(!isOpen);
+  const closeDropdown = () => setIsOpen(false);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        closeDropdown(); // Close dropdown
+        closeDropdown();
       }
     };
-
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    if (isOpen) document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isOpen]);
 
-  // Clone children to add onClick handler to each option
   const enhancedChildren = React.Children.map(children, (child) => {
     if (React.isValidElement(child)) {
       return React.cloneElement(child, {
         onClick: () => {
-          closeDropdown(); // Close dropdown when an option is clicked
-          if (child.props.onClick) {
-            child.props.onClick(); // Call original onClick if it exists
-          }
+          closeDropdown();
+          if (child.props.onClick) child.props.onClick();
         },
       });
     }
@@ -49,14 +35,14 @@ const BaseMenu = ({ iconContainerClass, iconSrc, children }) => {
         className={
           iconContainerClass
             ? iconContainerClass
-            : "cursor-pointer flex items-center hover:bg-gray-200 rounded-full p-2"
+            : "cursor-pointer flex items-center hover:bg-bg-hover rounded-xs p-1.5"
         }
         onClick={toggleDropdown}
       >
-        <img src={iconSrc} className="h-5 w-5" />
+        {trigger ?? (iconSrc && <img src={iconSrc} alt="" className="h-4 w-4" />)}
       </div>
       {isOpen && (
-        <div className="absolute right-0 mt-1 w-48 bg-white border border-gray-100 shadow-lg z-10 rounded">
+        <div className="absolute right-0 mt-1 w-48 bg-bg-surface border border-border-subtle shadow-ds-md z-10 rounded-xs overflow-hidden">
           {enhancedChildren}
         </div>
       )}
