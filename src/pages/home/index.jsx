@@ -1,8 +1,5 @@
 import { useEffect, useState } from "react";
-import { getAggregateReports, getRecentReports } from "../../api/reports";
-import { useAuthContext } from "../../context/AuthContext";
-import { formatDate } from "../../utils/utils";
-import { getMostUsedTemplates } from "../../api/templates";
+import { useNavigate } from "react-router-dom";
 import { Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -13,140 +10,181 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import { getRecentReports } from "../../api/reports";
+import { getMostUsedTemplates } from "../../api/templates";
 import { getUserDocsAggregate } from "../../api/users";
-import { useNavigate } from "react-router-dom";
+import { useAuthContext } from "../../context/AuthContext";
+import { formatDate } from "../../utils/utils";
+import AppShell from "../../components/layout/AppShell";
+import { ReportsIcon, TemplatesIcon, OrgIcon, PlusIcon } from "../../components/base/Icons";
+import CreateReport from "../../components/dialogs/reports/CreateReport";
 
-// Register necessary components for the chart
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend
-);
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+
+function StatCard({ label, value, Icon }) {
+  return (
+    <div className="bg-bg-surface border border-border-subtle rounded-xs p-4 flex-1 min-w-0">
+      <div className="flex items-start justify-between mb-2.5">
+        <span className="text-[11px] font-semibold tracking-wider uppercase text-text-muted">
+          {label}
+        </span>
+        <div className="w-[26px] h-[26px] bg-primary-subtle rounded-xs flex items-center justify-center text-primary-base">
+          <Icon size={13} />
+        </div>
+      </div>
+      <div className="text-[26px] font-bold text-text-primary tracking-tight leading-none">
+        {value ?? "—"}
+      </div>
+    </div>
+  );
+}
+
 export default function HomePage() {
   const auth = useAuthContext();
+  const navigate = useNavigate();
   const [recentReports, setRecentReports] = useState([]);
   const [topTemplates, setTopTemplates] = useState([]);
   const [chartData, setChartData] = useState();
   const [chartOptions, setChartOptions] = useState();
-  const navigate = useNavigate();
-  // Recent 10 Documents
-  const fetchRecentDocuments = async (userId) => {
-    const recentDocumentResponse = await getRecentReports(userId);
+  const [createReportOpen, setCreateReportOpen] = useState(false);
 
-    setRecentReports(recentDocumentResponse.data);
-  };
+  const firstName = auth.currentUser?.basicInformation?.firstName || "there";
 
-  const fetchMostUsedTemplates = async (userId) => {
-    const mostUsedTemplateResponse = await getMostUsedTemplates(userId);
-    setTopTemplates(mostUsedTemplateResponse.data);
-  };
+  const fetchAggregate = async (userId) => {
+    const aggregate = await getUserDocsAggregate(userId);
+    const labels = aggregate?.data.map((i) => i.month);
+    const documentCounts = aggregate?.data.map((i) => i.documentCount);
+    const templateCounts = aggregate?.data.map((i) => i.templateCount);
 
-  const fetchAggregateDocuments = async (userId) => {
-    const aggregateDocuments = await getUserDocsAggregate(userId);
-
-    const labels = aggregateDocuments?.data.map((item) => item.month);
-    const documentCounts = aggregateDocuments?.data.map(
-      (item) => item.documentCount
-    );
-    const templateCounts = aggregateDocuments?.data.map(
-      (item) => item.templateCount
-    );
-
-    const data = {
+    setChartData({
       labels,
       datasets: [
         {
-          label: "Documents",
+          label: "Reports",
           data: documentCounts,
-          backgroundColor: "#5465FF50",
-          borderColor: "#5465FF",
+          backgroundColor: "#8C60F350",
+          borderColor: "#8C60F3",
           borderWidth: 1,
+          borderRadius: 4,
         },
         {
           label: "Templates",
           data: templateCounts,
-          backgroundColor: "#FED8B150",
-          borderColor: "#FED8B1",
+          backgroundColor: "#c8b5f550",
+          borderColor: "#c8b5f5",
           borderWidth: 1,
+          borderRadius: 4,
         },
       ],
-    };
-
-    // Chart options
-    const options = {
+    });
+    setChartOptions({
       responsive: true,
+      maintainAspectRatio: false,
       plugins: {
-        legend: {
-          position: "top",
-        },
-        title: {
-          display: true,
-          text: `Statistics for ${new Date().getFullYear()}`,
-        },
+        legend: { position: "top", labels: { font: { family: "DM Sans", size: 11 } } },
+        title: { display: false },
       },
-    };
-
-    setChartData(data);
-    setChartOptions(options);
-  };
-
-  const getDashboardData = async (userId) => {
-    // Get 10 most recent reports by user
-    const recentReportsResponse = await getRecentReports(userId);
-    setRecentReports(recentReportsResponse);
-
-    // Get 5 most used templates by user
-    const mostUsedTemplateResponse = await getMostUsedTemplates(userId);
-    setTopTemplates(mostUsedTemplateResponse);
-
-    fetchAggregateDocuments(userId);
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { family: "DM Sans", size: 11 } } },
+        y: { ticks: { font: { family: "DM Sans", size: 11 } } },
+      },
+    });
   };
 
   useEffect(() => {
-    getDashboardData(auth.currentUser._id);
-  }, []);
-  return (
-    <div className="p-4 md:p-8 h-full">
-      {/* <Link to={`/documents/${uuidv4()}`}>
-        <BaseButton buttonText="Create Template" />
-      </Link> */}
+    if (!auth.currentUser?._id) return;
+    const userId = auth.currentUser._id;
+    getRecentReports(userId).then(setRecentReports).catch(() => {});
+    getMostUsedTemplates(userId).then(setTopTemplates).catch(() => {});
+    fetchAggregate(userId).catch(() => {});
+  }, [auth.currentUser]);
 
-      <div className="grid lg:grid-cols-2 gap-8 h-full">
-        {/* Recent 10 Documents */}
-        <div className="h-full">
-          <div className="bg-white h-full rounded-xl">
-            {/* Section Title */}
-            <div className="py-4 px-8 text-2xl font-semibold border-b">
-              Recent Reports
+  const today = new Date().toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+  const orgName = auth.currentUser?.organization?.name;
+
+  return (
+    <AppShell>
+      <div className="p-6 md:p-8 max-w-6xl">
+        {/* Header */}
+        <div className="mb-6">
+          <div className="text-[22px] font-semibold text-text-primary tracking-tight mb-1">
+            Welcome back, {firstName}
+          </div>
+          <div className="text-[13px] text-text-muted">
+            {today}{orgName ? ` · ${orgName}` : ""}
+          </div>
+        </div>
+
+        {/* Stats row */}
+        <div className="flex gap-3 mb-6 flex-wrap">
+          <StatCard label="Total Reports" value={recentReports?.length} Icon={ReportsIcon} />
+          <StatCard label="Templates" value={topTemplates?.length} Icon={TemplatesIcon} />
+          <StatCard label="Team Members" value={auth.currentUser?.organization?.memberCount} Icon={OrgIcon} />
+          <StatCard label="This Month" value={chartData?.datasets?.[0]?.data?.slice(-1)[0]} Icon={ReportsIcon} />
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-4">
+          {/* Recent Reports */}
+          <div className="bg-bg-surface border border-border-subtle rounded-xs">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-border-subtle">
+              <div className="font-semibold text-[13px] text-text-primary">Recent Reports</div>
             </div>
-            {/* Section Content */}
-            <div className=" overflow-y-auto">
-              {recentReports.map((recentReport) => (
+            <div className="overflow-y-auto max-h-[400px]">
+              {recentReports?.length === 0 && (
+                <div className="text-center py-12 text-text-muted text-[13px]">No reports yet</div>
+              )}
+              {recentReports?.map((r) => (
                 <div
-                  onClick={() =>
-                    navigate(
-                      `/documents/${recentReport.templateId}/${recentReport._id}`
-                    )
-                  }
-                  key={recentReport._id}
-                  className="w-full py-2 hover:bg-gray-200 px-8 cursor-pointer"
+                  key={r._id}
+                  onClick={() => navigate(`/reports/${r.templateId}/${r._id}`)}
+                  className="px-5 py-3 hover:bg-bg-hover cursor-pointer border-b border-border-subtle last:border-b-0"
                 >
-                  <div className="font-semibold flex items-center space-x-2">
-                    <p>{recentReport.name}</p>
-                    {recentReport.organizationId && (
-                      <span>
-                        <img
-                          src="/icons/base/organization/building.svg"
-                          className="h-4 w-4"
-                        />
+                  <div className="font-medium text-[13px] text-text-primary flex items-center gap-2">
+                    <span>{r.name}</span>
+                    {r.organizationId && (
+                      <span className="text-text-muted">
+                        <OrgIcon size={12} />
                       </span>
                     )}
                   </div>
-                  <p className="m-0 text-xs">
-                    Updated on {formatDate(recentReport.modifiedAt)}
+                  <p className="text-[11px] text-text-muted mt-0.5">
+                    Updated {formatDate(r.modifiedAt)}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Most Used Templates */}
+          <div className="bg-bg-surface border border-border-subtle rounded-xs">
+            <div className="px-5 py-4 border-b border-border-subtle">
+              <div className="font-semibold text-[13px] text-text-primary">Most Used Templates</div>
+            </div>
+            <div className="overflow-y-auto max-h-[400px]">
+              {topTemplates?.length === 0 && (
+                <div className="text-center py-12 text-text-muted text-[13px]">No templates yet</div>
+              )}
+              {topTemplates?.map((t) => (
+                <div
+                  key={t._id}
+                  onClick={() => navigate(`/templates/${t._id}`)}
+                  className="px-5 py-3 hover:bg-bg-hover cursor-pointer border-b border-border-subtle last:border-b-0"
+                >
+                  <div className="font-medium text-[13px] text-text-primary flex items-center gap-2">
+                    <span>{t.name}</span>
+                    {t.organizationId && (
+                      <span className="text-text-muted">
+                        <OrgIcon size={12} />
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-[11px] text-text-muted mt-0.5">
+                    Updated {formatDate(t.modifiedAt)}
                   </p>
                 </div>
               ))}
@@ -154,48 +192,53 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div className="h-full flex justify-between flex-col space-y-2">
-          {/* Top 3 Templates */}
-          <div className="bg-white h-1/2 rounded-xl">
-            {/* Section Title */}
-            <div className="py-4 px-8 text-2xl font-semibold border-b">
-              Most Used Templates
+        {/* Chart */}
+        {chartData && chartOptions && (
+          <div className="mt-4 bg-bg-surface border border-border-subtle rounded-xs p-5">
+            <div className="font-semibold text-[13px] text-text-primary mb-4">
+              Activity · Past 12 months
             </div>
-            {/* Section Content */}
-            <div className="overflow-y-auto h-52 max-h-52">
-              {topTemplates.map((topTemplate) => (
-                <div
-                  onClick={() => navigate(`/templates/${topTemplate._id}`)}
-                  key={topTemplate._id}
-                  className="w-full py-2 hover:bg-gray-200 px-8 cursor-pointer"
-                >
-                  <div className="font-semibold flex items-center space-x-2">
-                    <p>{topTemplate.name}</p>
-                    {topTemplate.organizationId && (
-                      <span>
-                        <img
-                          src="/icons/base/organization/building.svg"
-                          className="h-4 w-4"
-                        />
-                      </span>
-                    )}
-                  </div>
-                  <p className="m-0 text-xs">
-                    Updated on {formatDate(topTemplate.modifiedAt)}
-                  </p>
-                </div>
-              ))}
+            <div className="h-64">
+              <Bar data={chartData} options={chartOptions} />
             </div>
           </div>
+        )}
 
-          {/* Chart */}
-          <div className="bg-white h-1/2 rounded-xl p-4  hidden md:block">
-            {chartData && chartOptions && (
-              <Bar data={chartData} options={chartOptions} />
-            )}
+        {/* Quick actions */}
+        <div className="mt-4 bg-bg-surface border border-border-subtle rounded-xs p-5">
+          <div className="font-semibold text-xs text-text-muted uppercase tracking-wider mb-3">
+            Quick Actions
+          </div>
+          <div className="flex gap-2 flex-wrap">
+            <button
+              onClick={() => setCreateReportOpen(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xs border border-primary-base bg-primary-base text-white font-sans text-xs font-medium cursor-pointer hover:bg-primary-hover"
+            >
+              <PlusIcon /> New Report
+            </button>
+            <button
+              onClick={() => navigate(`/templates/new-${Date.now()}`)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xs border border-border-default bg-bg-surface text-text-secondary font-sans text-xs font-medium cursor-pointer hover:bg-bg-hover"
+            >
+              <PlusIcon /> New Template
+            </button>
+            <button
+              onClick={() => navigate("/organization")}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xs border border-border-default bg-bg-surface text-text-secondary font-sans text-xs font-medium cursor-pointer hover:bg-bg-hover"
+            >
+              Invite Member
+            </button>
           </div>
         </div>
       </div>
-    </div>
+
+      {createReportOpen && (
+        <CreateReport
+          user={auth.currentUser}
+          isOpen={createReportOpen}
+          toggleDialog={() => setCreateReportOpen(false)}
+        />
+      )}
+    </AppShell>
   );
 }

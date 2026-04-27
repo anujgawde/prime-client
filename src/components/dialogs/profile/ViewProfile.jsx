@@ -1,20 +1,31 @@
-import { updateUserProfile } from "../../../api/users";
-import BaseButton from "../../base/BaseButton";
-import BaseInput from "../../base/BaseInput";
 import { useEffect, useState } from "react";
+import { updateUserProfile } from "../../../api/users";
+import DialogShell, {
+  CancelButton,
+  dialogFieldWrap,
+  dialogInputCls,
+  dialogLabelCls,
+} from "../../base/DialogShell";
+import BaseButton from "../../base/BaseButton";
+import UserAvatar, { getInitials } from "../../base/UserAvatar";
+import { RoleBadge } from "../../base/Badge";
+
+const ROLE_LABEL = {
+  "super-admin": "Super-Admin",
+  admin: "Admin",
+  member: "Member",
+};
 
 export default function ViewProfile({ user, isOpen, toggleDialog }) {
-  const [userData, setUserData] = useState();
+  const [userData, setUserData] = useState({});
+  const [saving, setSaving] = useState(false);
 
-  const updateFormDataHandler = (event, inputKey) => {
-    setUserData((prevState) => ({
-      ...prevState,
-      [`${inputKey}`]: event.target.value,
-    }));
-  };
+  const update = (event, key) =>
+    setUserData((s) => ({ ...s, [key]: event.target.value }));
 
   const updateProfile = async () => {
-    const response = await updateUserProfile({ ...userData, _id: user._id });
+    setSaving(true);
+    await updateUserProfile({ ...userData, _id: user._id });
     window.location.reload();
   };
 
@@ -23,87 +34,94 @@ export default function ViewProfile({ user, isOpen, toggleDialog }) {
       firstName: user.basicInformation.firstName,
       lastName: user.basicInformation.lastName,
       email: user.basicInformation.email,
-      address: user.contactInformation.address,
-      phoneNumber: user.contactInformation.phoneNumber,
+      address: user.contactInformation?.address,
+      phoneNumber: user.contactInformation?.phoneNumber,
     });
   }, []);
 
-  return (
-    <div
-      onClick={toggleDialog}
-      className="z-50 fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center"
-    >
-      <div
-        className="bg-white rounded-lg shadow-lg w-11/12 md:w-3/5 lg:w-1/2 xl:w-1/3 p-4 relative min-h-[50%] justify-between flex flex-col space-y-4"
-        onClick={(e) => e.stopPropagation()} // Prevent click event from bubbling up to the parent div
-      >
-        <div className="font-medium  text-2xl ">Profile</div>
+  const initials = getInitials(userData.firstName, userData.lastName);
+  const role = ROLE_LABEL[user.organization?.roles] || null;
 
-        {/* Dialog Content  */}
-        <div className="space-y-2 flex-1">
-          <div className="flex items-center justify-between w-full space-x-2">
-            <div className="w-1/2">
-              <BaseInput
-                value={userData?.firstName}
-                name="firstName"
-                placeHolder=""
-                label="First Name"
-                errorText=""
-                onChange={(event) => updateFormDataHandler(event, "firstName")}
-                type={undefined}
+  return (
+    <DialogShell
+      title="Your Profile"
+      toggleDialog={toggleDialog}
+      width="max-w-md"
+      footer={
+        <>
+          <CancelButton onClick={toggleDialog} />
+          <BaseButton onClick={updateProfile} loading={saving}>
+            Save Profile
+          </BaseButton>
+        </>
+      }
+    >
+      <div className="flex flex-col gap-4">
+        <div className="flex items-center gap-4">
+          <UserAvatar initials={initials} size={52} role={role} />
+          <div>
+            <div className="text-sm font-semibold text-text-primary">
+              {userData.firstName} {userData.lastName}
+            </div>
+            <div className="text-xs text-text-muted">{userData.email}</div>
+            {role && (
+              <div className="mt-1">
+                <RoleBadge role={role} />
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="border-t border-border-subtle pt-3.5 flex flex-col gap-3">
+          <div className="flex gap-2.5">
+            <div className={`${dialogFieldWrap} flex-1`}>
+              <label className={dialogLabelCls}>First Name</label>
+              <input
+                value={userData.firstName ?? ""}
+                onChange={(e) => update(e, "firstName")}
+                className={dialogInputCls}
               />
             </div>
-            <div className="w-1/2">
-              <BaseInput
-                value={userData?.lastName}
-                name="lastName"
-                placeHolder=""
-                label="Last Name"
-                errorText=""
-                onChange={(event) => updateFormDataHandler(event, "lastName")}
-                type={undefined}
+            <div className={`${dialogFieldWrap} flex-1`}>
+              <label className={dialogLabelCls}>Last Name</label>
+              <input
+                value={userData.lastName ?? ""}
+                onChange={(e) => update(e, "lastName")}
+                className={dialogInputCls}
               />
             </div>
           </div>
 
-          <BaseInput
-            value={userData?.email}
-            name="email"
-            placeHolder=""
-            label="Email"
-            errorText=""
-            onChange={(event) => updateFormDataHandler(event, "email")}
-            type={undefined}
-          />
+          <div className={dialogFieldWrap}>
+            <label className={dialogLabelCls}>Email</label>
+            <input
+              value={userData.email ?? ""}
+              onChange={(e) => update(e, "email")}
+              className={`${dialogInputCls} bg-bg-subtle text-text-muted cursor-not-allowed`}
+              readOnly
+            />
+          </div>
 
-          <BaseInput
-            value={userData?.address}
-            name="address"
-            placeHolder="1234 SW 48th Blvd, Jacksonville, FL 12345"
-            label="Address"
-            errorText=""
-            onChange={(event) => updateFormDataHandler(event, "address")}
-            type={undefined}
-          />
+          <div className={dialogFieldWrap}>
+            <label className={dialogLabelCls}>Address</label>
+            <input
+              value={userData.address ?? ""}
+              onChange={(e) => update(e, "address")}
+              placeholder="1234 SW 48th Blvd, Jacksonville, FL 12345"
+              className={dialogInputCls}
+            />
+          </div>
 
-          <BaseInput
-            value={userData?.phoneNumber}
-            name="phoneNumber"
-            placeHolder=""
-            label="Phone"
-            errorText=""
-            onChange={(event) => updateFormDataHandler(event, "phoneNumber")}
-            type={undefined}
-          />
-          <div className="flex justify-center">
-            <BaseButton
-              onClick={updateProfile}
-              buttonText={"Update Profile"}
-              customClasses={"my-2"}
+          <div className={dialogFieldWrap}>
+            <label className={dialogLabelCls}>Phone</label>
+            <input
+              value={userData.phoneNumber ?? ""}
+              onChange={(e) => update(e, "phoneNumber")}
+              className={dialogInputCls}
             />
           </div>
         </div>
       </div>
-    </div>
+    </DialogShell>
   );
 }

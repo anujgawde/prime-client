@@ -1,14 +1,20 @@
-import { useEffect, useState } from "react";
-import BaseInput from "../../base/BaseInput";
-import BaseButton from "../../base/BaseButton";
+import { useState } from "react";
 import { createOrganization } from "../../../api/organizations";
-import { useAuthContext } from "../../../context/AuthContext";
+import DialogShell, {
+  CancelButton,
+  dialogFieldWrap,
+  dialogInputCls,
+  dialogLabelCls,
+} from "../../base/DialogShell";
+import BaseButton from "../../base/BaseButton";
 
 export default function CreateOrganization({ user, toggleDialog }) {
-  const [organizationData, setOrganizationData] = useState(user.organization);
+  const [organizationData, setOrganizationData] = useState(user.organization || {});
+  const [saving, setSaving] = useState(false);
 
   const saveOrganization = async () => {
-    const response = await createOrganization({
+    setSaving(true);
+    await createOrganization({
       ...organizationData,
       owners: [
         {
@@ -24,65 +30,53 @@ export default function CreateOrganization({ user, toggleDialog }) {
     window.location.reload();
   };
 
-  const updateFormDataHandler = (event, inputKey) => {
-    setOrganizationData((prevState) => ({
-      ...prevState,
-      [`${inputKey}`]: event.target.value,
-    }));
-  };
+  const update = (event, key) =>
+    setOrganizationData((s) => ({ ...s, [key]: event.target.value }));
 
   return (
-    <div
-      onClick={toggleDialog}
-      className="z-50 fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center"
+    <DialogShell
+      title="Create Organization"
+      subtitle="Set up your workspace for your team."
+      toggleDialog={toggleDialog}
+      width="max-w-md"
+      footer={
+        <>
+          <CancelButton onClick={toggleDialog} />
+          <BaseButton onClick={saveOrganization} loading={saving}>
+            Create Organization
+          </BaseButton>
+        </>
+      }
     >
-      <div
-        className="bg-white rounded-lg shadow-lg w-11/12 md:w-3/5 lg:w-1/2 xl:w-1/3 p-4 relative min-h-[50%] justify-between flex flex-col space-y-8"
-        onClick={(e) => e.stopPropagation()} // Prevent click event from bubbling up to the parent div
-      >
-        <div className="font-medium  text-2xl ">Organization</div>
-        {/* Dialog Content  */}
-        <div className="space-y-2 flex-1 flex flex-col justify-between">
-          <div>
-            <BaseInput
-              value={organizationData?.name}
-              name="name"
-              placeHolder=""
-              label="Organization Name"
-              errorText=""
-              onChange={(event) => updateFormDataHandler(event, "name")}
-              type={undefined}
-            />
-
-            <BaseInput
-              value={organizationData?.emailDomain}
-              name="emailDomain"
-              placeHolder="@primeco.in"
-              label="Email Domain"
-              errorText=""
-              onChange={(event) => updateFormDataHandler(event, "emailDomain")}
-              type={undefined}
-            />
-
-            <BaseInput
-              value={organizationData?.address}
-              name="address"
-              placeHolder="1234 SW 48th Blvd, Jacksonville, FL 12345"
-              label="Address"
-              errorText=""
-              onChange={(event) => updateFormDataHandler(event, "address")}
-              type={undefined}
-            />
-          </div>
-          <div className="flex justify-center">
-            <BaseButton
-              onClick={saveOrganization}
-              buttonText={"Save Organization"}
-              customClasses={"my-2"}
-            />
-          </div>
+      <div className="flex flex-col gap-3.5">
+        <div className={dialogFieldWrap}>
+          <label className={dialogLabelCls}>Organization Name</label>
+          <input
+            value={organizationData?.name ?? ""}
+            onChange={(e) => update(e, "name")}
+            placeholder="e.g. Acme Corp"
+            className={dialogInputCls}
+          />
+        </div>
+        <div className={dialogFieldWrap}>
+          <label className={dialogLabelCls}>Email Domain</label>
+          <input
+            value={organizationData?.emailDomain ?? ""}
+            onChange={(e) => update(e, "emailDomain")}
+            placeholder="@primeco.in"
+            className={dialogInputCls}
+          />
+        </div>
+        <div className={dialogFieldWrap}>
+          <label className={dialogLabelCls}>Address</label>
+          <input
+            value={organizationData?.address ?? ""}
+            onChange={(e) => update(e, "address")}
+            placeholder="1234 SW 48th Blvd, Jacksonville, FL 12345"
+            className={dialogInputCls}
+          />
         </div>
       </div>
-    </div>
+    </DialogShell>
   );
 }
