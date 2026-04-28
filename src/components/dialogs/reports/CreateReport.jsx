@@ -37,7 +37,7 @@ export default function CreateReport({ toggleDialog, user }) {
   const createDocument = () => {
     if (activeTemplate?._id) {
       toggleDialog();
-      navigate(`/reports/${activeTemplate._id}/${uuidv4()}`, {
+      navigate(`/reports/${activeTemplate._id}/${uuidv4()}?collab=yjs`, {
         state: { organizationId: isOrg ? user.organization.id : null },
       });
     }

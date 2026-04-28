@@ -141,7 +141,7 @@ export default function HomePage() {
               {recentReports?.map((r) => (
                 <div
                   key={r._id}
-                  onClick={() => navigate(`/reports/${r.templateId}/${r._id}`)}
+                  onClick={() => navigate(`/reports/${r.templateId}/${r._id}?collab=yjs`)}
                   className="px-5 py-3 hover:bg-bg-hover cursor-pointer border-b border-border-subtle last:border-b-0"
                 >
                   <div className="font-medium text-[13px] text-text-primary flex items-center gap-2">
@@ -172,7 +172,7 @@ export default function HomePage() {
               {topTemplates?.map((t) => (
                 <div
                   key={t._id}
-                  onClick={() => navigate(`/templates/${t._id}`)}
+                  onClick={() => navigate(`/templates/${t._id}?collab=yjs`)}
                   className="px-5 py-3 hover:bg-bg-hover cursor-pointer border-b border-border-subtle last:border-b-0"
                 >
                   <div className="font-medium text-[13px] text-text-primary flex items-center gap-2">
@@ -217,7 +217,7 @@ export default function HomePage() {
               <PlusIcon /> New Report
             </button>
             <button
-              onClick={() => navigate(`/templates/new-${Date.now()}`)}
+              onClick={() => navigate(`/templates/new-${Date.now()}?collab=yjs`)}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xs border border-border-default bg-bg-surface text-text-secondary font-sans text-xs font-medium cursor-pointer hover:bg-bg-hover"
             >
               <PlusIcon /> New Template

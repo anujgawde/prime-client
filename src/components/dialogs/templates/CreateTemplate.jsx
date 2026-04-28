@@ -13,7 +13,7 @@ export default function CreateTemplate({ toggleDialog, user }) {
   const [isOrg, setIsOrg] = useState(null);
 
   const buildTemplate = () => {
-    navigate(`/templates/${uuidv4()}`, {
+    navigate(`/templates/${uuidv4()}?collab=yjs`, {
       state: { organizationId: isOrg ? user.organization.id : null },
     });
   };

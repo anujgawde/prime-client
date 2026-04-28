@@ -107,7 +107,7 @@ export default function Navbar() {
     },
     {
       label: "Build a Template",
-      navigateTo: `/templates/${uuidv4()}`,
+      navigateTo: `/templates/${uuidv4()}?collab=yjs`,
       icon: "/icons/side-nav/build-template.svg",
       callbackFunction: () => {
         setIsMenuOpen(!isMenuOpen);

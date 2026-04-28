@@ -38,7 +38,7 @@ export default function Sidebar() {
     },
     {
       label: "Build a Template",
-      navigateTo: `/templates/${uuidv4()}`,
+      navigateTo: `/templates/${uuidv4()}?collab=yjs`,
       icon: "/icons/side-nav/build-template.svg",
     },
     {

@@ -181,19 +181,55 @@ export default function EditorComponent({
 
       binding = new QuillBinding(yText, quill, provider.awareness);
 
+      const info = auth.currentUser?.basicInformation;
+      const displayName = info
+        ? `${info.firstName ?? ""} ${info.lastName ?? ""}`.trim()
+        : auth.currentUser?.user?.email ?? "Anonymous";
+
       provider.awareness.setLocalStateField("user", {
-        name: auth.currentUser.name || auth.currentUser.email || "Anonymous",
+        name: displayName || "Anonymous",
         color: pickColor(auth.currentUser._id || ""),
         id: auth.currentUser._id,
       });
 
+      const cursors = quill.getModule("cursors");
+
+      const onAwarenessChange = ({ added, updated, removed }) => {
+        const states = provider.awareness.getStates();
+
+        removed.forEach((clientId) => {
+          cursors.removeCursor(String(clientId));
+        });
+
+        [...added, ...updated].forEach((clientId) => {
+          if (clientId === provider.doc.clientID) return;
+          const state = states.get(clientId);
+          if (!state?.user) return;
+
+          cursors.createCursor(String(clientId), state.user.name, state.user.color);
+
+          if (state.cursor) {
+            cursors.moveCursor(String(clientId), state.cursor);
+          } else {
+            cursors.removeCursor(String(clientId));
+          }
+        });
+      };
+
+      provider.awareness.on("change", onAwarenessChange);
+
       quill.enable();
+
+      cleanupAwareness = () => provider.awareness.off("change", onAwarenessChange);
     };
+
+    let cleanupAwareness = null;
 
     socket.once(`${socketIdentifier}-yjs-init`, initHandler);
 
     return () => {
       socket.off(`${socketIdentifier}-yjs-init`, initHandler);
+      if (cleanupAwareness) cleanupAwareness();
       if (binding) binding.destroy();
       provider.destroy();
     };

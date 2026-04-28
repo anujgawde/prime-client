@@ -344,7 +344,7 @@ export default function MyOrganizationPage() {
               <div className="mb-4">
                 <button
                   onClick={() =>
-                    navigate(`/templates/${uuidv4()}`, {
+                    navigate(`/templates/${uuidv4()}?collab=yjs`, {
                       state: { organizationId: auth.currentUser.organization.id },
                     })
                   }

@@ -35,7 +35,7 @@ export default function TemplatesPage() {
     if (org && (org.roles === "super-admin" || org.roles === "admin")) {
       setCreateOpen(true);
     } else {
-      navigate(`/templates/${uuidv4()}`);
+      navigate(`/templates/${uuidv4()}?collab=yjs`);
     }
   };
 

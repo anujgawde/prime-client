@@ -6,7 +6,7 @@ import { EditIcon, MoreIcon, OrgIcon } from "./base/Icons";
 const DocumentCard = (props) => {
   const isTemplate = props.identifier === "template";
   const basePath = props.basePath;
-  const target = `/${basePath}/${props.navigate}`;
+  const target = `/${basePath}/${props.navigate}?collab=yjs`;
 
   return (
     <div className="bg-bg-surface border border-border-subtle rounded-xs p-4 cursor-pointer transition-all duration-150 hover:shadow-ds-md hover:border-border-default">
