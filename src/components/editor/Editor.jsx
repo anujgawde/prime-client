@@ -2,17 +2,18 @@ import React, { useCallback, useEffect, useState } from "react";
 import "quill/dist/quill.snow.css";
 import Quill from "quill";
 import ImageResize from "quill-image-resize-module-react";
+import QuillCursors from "quill-cursors";
+import { QuillBinding } from "y-quill";
 import { io } from "socket.io-client";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { useAuthContext } from "../../context/AuthContext";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas"; // For rendering HTML to canvas
 import CreateTable from "../dialogs/CreateTable";
+import { SocketYjsProvider } from "../../lib/collab/socketYjsProvider";
 window.Quill = Quill;
 Quill.register("modules/imageResize", ImageResize);
-// modules = {
-
-// };
+Quill.register("modules/cursors", QuillCursors);
 const AUTO_SAVE = 2000;
 const TOOLBAR_OPTIONS = [
   [{ header: [1, 2, 3, 4, 5, 6, false] }],
@@ -36,6 +37,8 @@ export default function EditorComponent({
   const [isCreateTableDialogOpen, setIsCreateTableDialogOpen] = useState();
   const [socket, setSocket] = useState();
   const { id: documentId, templateId } = useParams();
+  const [searchParams] = useSearchParams();
+  const useYjs = searchParams.get("collab") === "yjs";
 
   const auth = useAuthContext();
 
@@ -51,59 +54,69 @@ export default function EditorComponent({
   }, []);
 
   //   Quill Creation:
-  const wrapperRef = useCallback((wrapper) => {
-    if (wrapper === null) return;
-    wrapper.innerHTML = "";
+  const wrapperRef = useCallback(
+    (wrapper) => {
+      if (wrapper === null) return;
+      wrapper.innerHTML = "";
 
-    const editor = document.createElement("div");
-    wrapper.append(editor);
-    const q = new Quill(editor, {
-      theme: "snow",
-      modules: {
-        toolbar: TOOLBAR_OPTIONS,
-        table: true,
-        imageResize: {
-          parchment: Quill.import("parchment"),
-          modules: ["Resize", "DisplaySize"],
+      const editor = document.createElement("div");
+      wrapper.append(editor);
+      const q = new Quill(editor, {
+        theme: "snow",
+        modules: {
+          toolbar: TOOLBAR_OPTIONS,
+          table: true,
+          imageResize: {
+            parchment: Quill.import("parchment"),
+            modules: ["Resize", "DisplaySize"],
+          },
+          ...(useYjs ? { cursors: true, history: { userOnly: true } } : {}),
         },
-      },
-    });
-    setQuill(q);
-    q.disable();
-    q.setText("Loading...");
-  }, []);
+      });
+      setQuill(q);
+      q.disable();
+      q.setText("Loading...");
+    },
+    [useYjs]
+  );
+
+  // ---------- Legacy (non-Yjs) collaboration path ----------
 
   //   Emitting Changes:
   useEffect(() => {
+    if (useYjs) return;
     if (socket == null || quill == null) return;
     const handler = (delta, oldDelta, source) => {
       if (source !== "user") return;
-      socket.emit("send-changes", { docReference: documentId, delta });
+      socket.emit(`send-${socketIdentifier}-changes`, {
+        docReference: documentId,
+        delta,
+      });
     };
     quill.on("text-change", handler);
     return () => {
       quill.off("text-change", handler);
     };
-  }, [socket, quill]);
+  }, [socket, quill, useYjs, documentId, socketIdentifier]);
 
   //   Implementing changes to the document:
   useEffect(() => {
+    if (useYjs) return;
     if (socket == null || quill == null) return;
 
+    const eventName = `receive-${socketIdentifier}-changes`;
     const handler = (delta) => {
       quill.updateContents(delta);
     };
-    socket.on("receive-changes", handler);
-    return (
-      () => {
-        socket.off("receive-changes", handler);
-      },
-      [socket, quill]
-    );
-  }, []);
+    socket.on(eventName, handler);
+    return () => {
+      socket.off(eventName, handler);
+    };
+  }, [socket, quill, useYjs, socketIdentifier]);
 
   //   Specific Document
   useEffect(() => {
+    if (useYjs) return;
     if (socket == null || quill == null) return;
     socket.once(`load-${socketIdentifier}`, (document) => {
       updateDocumentName(document.name);
@@ -120,10 +133,11 @@ export default function EditorComponent({
     }
 
     socket.emit(`get-${socketIdentifier}`, getDocumentConfig);
-  }, [socket, quill, documentId]);
+  }, [socket, quill, documentId, useYjs]);
 
   // Save Document in intervals:
   useEffect(() => {
+    if (useYjs) return;
     if (socket == null || quill == null) return;
     const interval = setInterval(() => {
       socket.emit(`save-${socketIdentifier}`, {
@@ -134,7 +148,56 @@ export default function EditorComponent({
     return () => {
       clearInterval(interval);
     };
-  }, [socket, quill]);
+  }, [socket, quill, useYjs]);
+
+  // ---------- Yjs collaboration path ----------
+
+  useEffect(() => {
+    if (!useYjs) return;
+    if (socket == null || quill == null) return;
+
+    const provider = new SocketYjsProvider({
+      socket,
+      docReference: documentId,
+      resourceType: socketIdentifier, // "report" or "template"
+      joinPayload: {
+        userId: auth.currentUser._id,
+        organizationId,
+        ...(templateId ? { templateId } : {}),
+      },
+    });
+
+    const yText = provider.doc.getText("quill");
+    let binding;
+
+    const initHandler = ({ name, data }) => {
+      if (name) updateDocumentName(name);
+
+      // Seed an empty Y.Doc with the legacy Delta so existing reports keep
+      // their template content when first opened on the Yjs path.
+      if (yText.length === 0 && data && (data.ops || Array.isArray(data))) {
+        yText.applyDelta(data.ops || data);
+      }
+
+      binding = new QuillBinding(yText, quill, provider.awareness);
+
+      provider.awareness.setLocalStateField("user", {
+        name: auth.currentUser.name || auth.currentUser.email || "Anonymous",
+        color: pickColor(auth.currentUser._id || ""),
+        id: auth.currentUser._id,
+      });
+
+      quill.enable();
+    };
+
+    socket.once(`${socketIdentifier}-yjs-init`, initHandler);
+
+    return () => {
+      socket.off(`${socketIdentifier}-yjs-init`, initHandler);
+      if (binding) binding.destroy();
+      provider.destroy();
+    };
+  }, [socket, quill, documentId, useYjs, socketIdentifier]);
 
   useEffect(() => {
     if (socket == null || quill == null) return;
@@ -259,4 +322,14 @@ export default function EditorComponent({
       )}
     </div>
   );
+}
+
+const PRESENCE_COLORS = [
+  "#ef4444", "#f97316", "#eab308", "#22c55e",
+  "#06b6d4", "#3b82f6", "#8b5cf6", "#ec4899",
+];
+function pickColor(seed) {
+  let h = 0;
+  for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) | 0;
+  return PRESENCE_COLORS[Math.abs(h) % PRESENCE_COLORS.length];
 }
