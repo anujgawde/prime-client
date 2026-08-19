@@ -34,13 +34,15 @@ export default function CreateTemplate({ toggleDialog, user }) {
       }
     >
       <div className={dialogFieldWrap}>
-        <label className={dialogLabelCls}>
-          Is this template for your organization?
-        </label>
+        <label className={dialogLabelCls}>Template Type</label>
         <div className="flex gap-2">
           {[
-            { val: true, label: "Yes — Organization", desc: "Visible to all members" },
-            { val: false, label: "No — Personal", desc: "Only you can see it" },
+            {
+              val: true,
+              label: "Organization",
+              desc: "Visible to all members",
+            },
+            { val: false, label: "Personal", desc: "Only you can see it" },
           ].map((opt) => (
             <label
               key={opt.label}
@@ -59,7 +61,9 @@ export default function CreateTemplate({ toggleDialog, user }) {
                 />
                 <span
                   className={`text-xs font-semibold ${
-                    isOrg === opt.val ? "text-primary-text" : "text-text-primary"
+                    isOrg === opt.val
+                      ? "text-primary-text"
+                      : "text-text-primary"
                   }`}
                 >
                   {opt.label}

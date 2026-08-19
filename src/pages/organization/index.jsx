@@ -138,7 +138,7 @@ export default function MyOrganizationPage() {
       <AppShell>
         <div className="h-full flex items-center justify-center p-8">
           <div className="text-center max-w-md">
-            <div className="w-14 h-14 mx-auto mb-4 bg-primary-subtle border border-primary-border rounded-md flex items-center justify-center text-primary-base">
+            <div className="w-14 h-14 mx-auto mb-4 bg-bg-subtle border border-border-default rounded-md flex items-center justify-center text-text-muted">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                 <rect x="9" y="3" width="6" height="5" rx="1" stroke="currentColor" strokeWidth="1.5" />
                 <rect x="2" y="16" width="6" height="5" rx="1" stroke="currentColor" strokeWidth="1.5" />

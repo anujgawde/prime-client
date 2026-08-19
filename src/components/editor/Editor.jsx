@@ -77,7 +77,7 @@ export default function EditorComponent({
       q.disable();
       q.setText("Loading...");
     },
-    [useYjs]
+    [useYjs],
   );
 
   // ---------- Legacy (non-Yjs) collaboration path ----------
@@ -184,7 +184,7 @@ export default function EditorComponent({
       const info = auth.currentUser?.basicInformation;
       const displayName = info
         ? `${info.firstName ?? ""} ${info.lastName ?? ""}`.trim()
-        : auth.currentUser?.user?.email ?? "Anonymous";
+        : (auth.currentUser?.user?.email ?? "Anonymous");
 
       provider.awareness.setLocalStateField("user", {
         name: displayName || "Anonymous",
@@ -206,7 +206,11 @@ export default function EditorComponent({
           const state = states.get(clientId);
           if (!state?.user) return;
 
-          cursors.createCursor(String(clientId), state.user.name, state.user.color);
+          cursors.createCursor(
+            String(clientId),
+            state.user.name,
+            state.user.color,
+          );
 
           if (state.cursor) {
             cursors.moveCursor(String(clientId), state.cursor);
@@ -220,7 +224,8 @@ export default function EditorComponent({
 
       quill.enable();
 
-      cleanupAwareness = () => provider.awareness.off("change", onAwarenessChange);
+      cleanupAwareness = () =>
+        provider.awareness.off("change", onAwarenessChange);
     };
 
     let cleanupAwareness = null;
@@ -330,11 +335,7 @@ export default function EditorComponent({
 
   return (
     <div>
-      <div
-        id="container"
-        className="container w-full mt-[80px]"
-        ref={wrapperRef}
-      ></div>
+      <div id="container" className="container w-full " ref={wrapperRef}></div>
       {/* <button onClick={insertTable}>insert table</button> */}
 
       {/* <input
@@ -361,8 +362,14 @@ export default function EditorComponent({
 }
 
 const PRESENCE_COLORS = [
-  "#ef4444", "#f97316", "#eab308", "#22c55e",
-  "#06b6d4", "#3b82f6", "#8b5cf6", "#ec4899",
+  "#ef4444",
+  "#f97316",
+  "#eab308",
+  "#22c55e",
+  "#06b6d4",
+  "#3b82f6",
+  "#8b5cf6",
+  "#ec4899",
 ];
 function pickColor(seed) {
   let h = 0;

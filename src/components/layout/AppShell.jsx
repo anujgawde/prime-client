@@ -9,10 +9,10 @@ import {
   TemplatesIcon,
   OrgIcon,
   PrimeLogo,
-  ChevronDown,
   SearchIcon,
   HelpIcon,
   SettingsIcon,
+  ChevronDown,
 } from "../base/Icons";
 import ViewProfile from "../dialogs/profile/ViewProfile";
 import ViewInvitations from "../dialogs/users/ViewInvitations";
@@ -20,19 +20,78 @@ import ViewInvitations from "../dialogs/users/ViewInvitations";
 const NAV_ITEMS = [
   { id: "dashboard", label: "Home", path: "/dashboard", Icon: HomeIcon },
   { id: "reports", label: "Reports", path: "/reports", Icon: ReportsIcon },
-  { id: "templates", label: "Templates", path: "/templates", Icon: TemplatesIcon },
-  { id: "organization", label: "Organization", path: "/organization", Icon: OrgIcon },
+  {
+    id: "templates",
+    label: "Templates",
+    path: "/templates",
+    Icon: TemplatesIcon,
+  },
+  {
+    id: "organization",
+    label: "Organization",
+    path: "/organization",
+    Icon: OrgIcon,
+  },
 ];
+
+function CollapseIcon({ collapsed }) {
+  return (
+    <svg
+      width="13"
+      height="13"
+      viewBox="0 0 13 13"
+      fill="none"
+      className="flex-shrink-0"
+    >
+      {collapsed ? (
+        <>
+          <path
+            d="M4.5 2.5l4 4-4 4"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M8.5 2.5l4 4-4 4"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </>
+      ) : (
+        <>
+          <path
+            d="M8.5 2.5l-4 4 4 4"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M4.5 2.5l-4 4 4 4"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </>
+      )}
+    </svg>
+  );
+}
 
 export default function AppShell({ children }) {
   const location = useLocation();
   const navigate = useNavigate();
   const auth = useAuthContext();
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [viewProfileOpen, setViewProfileOpen] = useState(false);
   const [viewInvitationsOpen, setViewInvitationsOpen] = useState(false);
-  const menuRef = useRef(null);
+  const userMenuRef = useRef(null);
   const mobileRef = useRef(null);
 
   const user = auth.currentUser;
@@ -43,8 +102,10 @@ export default function AppShell({ children }) {
 
   useEffect(() => {
     const handleClick = (e) => {
-      if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false);
-      if (mobileRef.current && !mobileRef.current.contains(e.target)) setMobileNavOpen(false);
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target))
+        setUserMenuOpen(false);
+      if (mobileRef.current && !mobileRef.current.contains(e.target))
+        setMobileOpen(false);
     };
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
@@ -57,80 +118,168 @@ export default function AppShell({ children }) {
 
   const isActive = (path) => location.pathname.startsWith(path);
 
-  return (
-    <div className="w-full h-screen flex flex-col bg-bg-base font-sans overflow-hidden">
-      {/* Top Nav */}
-      <header className="h-12 bg-bg-surface border-b border-border-subtle flex items-center px-4 gap-0 flex-shrink-0 shadow-[0_1px_0_rgba(0,0,0,0.04)]">
-        {/* Mobile menu toggle */}
-        <button
-          className="md:hidden mr-2 p-1.5 hover:bg-bg-hover rounded-xs border-none bg-transparent cursor-pointer"
-          onClick={() => setMobileNavOpen(!mobileNavOpen)}
-        >
-          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-            <line x1="3" y1="5" x2="15" y2="5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-            <line x1="3" y1="9" x2="15" y2="9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-            <line x1="3" y1="13" x2="15" y2="13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-          </svg>
-        </button>
-
-        {/* Logo */}
-        <Link to="/dashboard" className="flex items-center gap-1.5 mr-6 no-underline">
-          <PrimeLogo size={22} />
-          <span className="font-bold text-sm text-text-primary tracking-tight">Prime</span>
-        </Link>
-
-        {/* Org selector */}
-        <button className="hidden md:flex items-center gap-1.5 px-2 py-1 rounded-xs border border-border-subtle bg-transparent cursor-pointer font-sans hover:bg-bg-hover">
-          <span className="text-xs text-text-secondary font-medium">{orgName}</span>
-          <ChevronDown className="text-text-muted" />
-        </button>
-
-        <div className="flex-1" />
-
-        {/* Search */}
-        <div className="hidden md:flex items-center gap-1.5 bg-bg-subtle border border-border-subtle rounded-xs px-2.5 py-1 w-52 mr-3">
-          <SearchIcon className="text-text-muted" />
-          <span className="text-xs text-text-muted">Search…</span>
-          <span className="ml-auto text-[10px] text-text-disabled font-mono">⌘K</span>
-        </div>
-
-        {/* User menu */}
-        <div className="relative" ref={menuRef}>
-          <div
-            className="flex items-center gap-2 cursor-pointer px-1.5 py-1 rounded-xs hover:bg-bg-hover"
-            onClick={() => setMenuOpen(!menuOpen)}
-          >
-            <UserAvatar initials={initials} size={26} role={user?.role} />
-            <span className="hidden md:block text-xs font-medium text-text-primary">
-              {firstName || "User"}
-            </span>
-            <ChevronDown className="text-text-muted" />
-          </div>
-          {menuOpen && (
-            <div className="absolute right-0 top-full mt-1 w-52 bg-bg-surface border border-border-subtle shadow-ds-md z-20 rounded-xs overflow-hidden">
+  const sidebarContent = (isMobile = false) => (
+    <div className={`flex flex-col h-full ${isMobile ? "w-64" : ""}`}>
+      {/* Workspace header */}
+      <div
+        className={`flex items-center gap-2 px-3 py-3 text-2xl ${collapsed || !isMobile ? "justify-center" : ""}`}
+      >
+        {!collapsed || isMobile ? (
+          <div className="flex-1 min-w-0 flex w-full justify-between items-center">
+            <div className=" font-semibold text-text-primary truncate leading-tight">
+              Prime
+            </div>
+            {/* <div className="text-[11px] text-text-muted truncate leading-tight">{orgName}</div> */}
+            {/* Collapse toggle — desktop only */}
+            {!isMobile && (
               <button
-                onClick={() => { setMenuOpen(false); setViewProfileOpen(true); }}
+                onClick={() => setCollapsed(!collapsed)}
+                title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+                className={`flex items-center gap-2 px-2 py-1.5  border-none bg-transparent text-text-muted hover:text-text-primary  cursor-pointer transition-colors duration-100 mt-0.5 ${collapsed ? "justify-center" : ""}`}
+              >
+                <CollapseIcon collapsed={collapsed} />
+              </button>
+            )}
+          </div>
+        ) : (
+          <Link
+            to="/dashboard"
+            className="flex items-center gap-2 no-underline flex-shrink-0 font-bold"
+          >
+            Pr
+          </Link>
+        )}
+        {isMobile && (
+          <button
+            onClick={() => setMobileOpen(false)}
+            className="ml-auto border-none bg-transparent text-text-muted cursor-pointer hover:text-text-primary text-lg leading-none p-1"
+          >
+            ×
+          </button>
+        )}
+      </div>
+
+      {/* Search */}
+      {(!collapsed || isMobile) && (
+        <div className="px-2 pt-2">
+          <div className="flex items-center gap-1.5 bg-bg-subtle border border-border-subtle rounded-xs px-2.5 py-1.5 cursor-text">
+            <SearchIcon className="text-text-muted flex-shrink-0" />
+            <span className="text-[12px] text-text-muted flex-1">Search…</span>
+            <span className="text-[10px] text-text-muted font-mono">⌘K</span>
+          </div>
+        </div>
+      )}
+      {collapsed && !isMobile && (
+        <div className="px-2 pt-2 flex justify-center">
+          <button className="w-8 h-8 flex items-center justify-center rounded-xs hover:bg-bg-hover text-text-muted border-none bg-transparent cursor-pointer">
+            <SearchIcon />
+          </button>
+        </div>
+      )}
+
+      {/* Section label */}
+      {(!collapsed || isMobile) && (
+        <div className="px-3 pt-4 pb-1">
+          <span className="text-[10px] font-semibold tracking-[0.07em] uppercase text-text-muted">
+            Workspace
+          </span>
+        </div>
+      )}
+
+      {/* Nav items */}
+      <nav className="flex-1 px-2 py-1 flex flex-col gap-px overflow-y-auto">
+        {NAV_ITEMS.map((item) => {
+          const active = isActive(item.path);
+          return (
+            <Link
+              key={item.id}
+              to={item.path}
+              onClick={() => isMobile && setMobileOpen(false)}
+              title={collapsed && !isMobile ? item.label : undefined}
+              className={`flex items-center gap-2.5 px-2 py-1.5 rounded-xs no-underline text-[13px] transition-all duration-100 ${
+                collapsed && !isMobile ? "justify-center" : ""
+              } ${
+                active
+                  ? "bg-bg-sidebar-active text-text-primary font-medium"
+                  : "text-text-secondary hover:bg-bg-hover hover:text-text-primary"
+              }`}
+            >
+              <span className="flex-shrink-0 text-text-muted">
+                <item.Icon />
+              </span>
+              {(!collapsed || isMobile) && item.label}
+            </Link>
+          );
+        })}
+      </nav>
+
+      {/* Bottom section */}
+      <div
+        className={` border-border-subtle px-2 py-2 flex flex-col gap-px ${collapsed && !isMobile ? "items-center" : ""}`}
+      >
+        {/* {(!collapsed || isMobile) && (
+          <>
+            <Link
+              to="/info"
+              className="flex items-center gap-2.5 px-2 py-1.5 rounded-xs no-underline text-[12px] text-text-muted hover:text-text-primary hover:bg-bg-hover transition-colors duration-100"
+            >
+              <HelpIcon /> Help & Support
+            </Link>
+            <button className="flex items-center gap-2.5 w-full px-2 py-1.5 rounded-xs border-none bg-transparent text-[12px] text-text-muted hover:text-text-primary hover:bg-bg-hover cursor-pointer text-left transition-colors duration-100">
+              <SettingsIcon /> Settings
+            </button>
+          </>
+        )} */}
+
+        {/* User row */}
+        <div className="relative mt-1" ref={userMenuRef}>
+          <button
+            onClick={() => setUserMenuOpen(!userMenuOpen)}
+            className={`flex items-center gap-2 w-full px-2 py-1.5 rounded-xs border-none bg-transparent cursor-pointer hover:bg-bg-hover transition-colors duration-100 ${collapsed && !isMobile ? "justify-center" : ""}`}
+          >
+            <UserAvatar initials={initials} size={22} role={user?.role} />
+            {(!collapsed || isMobile) && (
+              <>
+                <span className="text-[12px] font-medium text-text-primary flex-1 text-left truncate">
+                  {firstName || "User"}
+                </span>
+                <ChevronDown className="text-text-muted flex-shrink-0 -rotate-90" />
+              </>
+            )}
+          </button>
+          {userMenuOpen && (
+            <div
+              className={`absolute ${collapsed && !isMobile ? "left-full ml-2 bottom-0" : "bottom-full mb-1 left-0 right-0"} bg-bg-surface border border-border-subtle shadow-ds-md z-20 rounded-xs overflow-hidden w-48`}
+            >
+              <button
+                onClick={() => {
+                  setUserMenuOpen(false);
+                  setViewProfileOpen(true);
+                }}
                 className="block w-full text-left px-3 py-2 text-[13px] text-text-primary hover:bg-bg-hover border-none bg-transparent cursor-pointer"
               >
                 View Profile
               </button>
               <button
-                onClick={() => { setMenuOpen(false); setViewInvitationsOpen(true); }}
+                onClick={() => {
+                  setUserMenuOpen(false);
+                  setViewInvitationsOpen(true);
+                }}
                 className="block w-full text-left px-3 py-2 text-[13px] text-text-primary hover:bg-bg-hover border-none bg-transparent cursor-pointer"
               >
                 Invitations
               </button>
               <Link
                 to="/info"
-                onClick={() => setMenuOpen(false)}
-                className="block w-full text-left px-3 py-2 text-[13px] text-text-primary hover:bg-bg-hover no-underline"
+                onClick={() => setUserMenuOpen(false)}
+                className="block px-3 py-2 text-[13px] text-text-primary hover:bg-bg-hover no-underline"
               >
                 What's Prime?
               </Link>
               <Link
                 to="/coming-soon"
-                onClick={() => setMenuOpen(false)}
-                className="block w-full text-left px-3 py-2 text-[13px] text-text-primary hover:bg-bg-hover no-underline"
+                onClick={() => setUserMenuOpen(false)}
+                className="block px-3 py-2 text-[13px] text-text-primary hover:bg-bg-hover no-underline"
               >
                 Coming Soon!
               </Link>
@@ -145,83 +294,76 @@ export default function AppShell({ children }) {
             </div>
           )}
         </div>
-      </header>
-
-      <div className="flex-1 flex overflow-hidden">
-        {/* Sidebar - desktop */}
-        <nav className="hidden md:flex w-[200px] bg-bg-surface border-r border-border-subtle px-2 py-2.5 flex-col gap-px flex-shrink-0">
-          <div className="px-2 pt-1 pb-1.5 mb-0.5">
-            <span className="text-[10px] font-semibold tracking-[0.07em] uppercase text-text-muted">
-              Workspace
-            </span>
-          </div>
-          {NAV_ITEMS.map((item) => {
-            const active = isActive(item.path);
-            return (
-              <Link
-                key={item.id}
-                to={item.path}
-                className={`flex items-center gap-2 w-full px-2 py-1.5 rounded-xs no-underline text-[13px] transition-all duration-100 ${
-                  active
-                    ? "bg-primary-subtle text-primary-text font-medium"
-                    : "text-text-secondary hover:bg-bg-hover hover:text-text-primary"
-                }`}
-              >
-                <span className={active ? "text-primary-base" : "opacity-70"}>
-                  <item.Icon />
-                </span>
-                {item.label}
-              </Link>
-            );
-          })}
-          <div className="flex-1" />
-          <div className="border-t border-border-subtle pt-2 mt-2">
-            <Link
-              to="/info"
-              className="flex items-center gap-2 w-full px-2 py-1.5 rounded-xs no-underline text-xs text-text-muted hover:text-text-primary hover:bg-bg-hover"
-            >
-              <HelpIcon /> Help & Support
-            </Link>
-            <button className="flex items-center gap-2 w-full px-2 py-1.5 rounded-xs border-none bg-transparent text-xs text-text-muted hover:text-text-primary hover:bg-bg-hover cursor-pointer text-left">
-              <SettingsIcon /> Settings
-            </button>
-          </div>
-        </nav>
-
-        {/* Sidebar - mobile drawer */}
-        {mobileNavOpen && (
-          <div className="fixed inset-0 z-40 md:hidden bg-text-primary/30" onClick={() => setMobileNavOpen(false)}>
-            <nav
-              ref={mobileRef}
-              onClick={(e) => e.stopPropagation()}
-              className="bg-bg-surface w-72 h-full px-3 py-4 flex flex-col gap-px"
-            >
-              <div className="px-2 pt-1 pb-3 flex justify-between items-center">
-                <span className="text-base font-semibold">Menu</span>
-                <button onClick={() => setMobileNavOpen(false)} className="border-none bg-transparent text-xl text-text-muted">×</button>
-              </div>
-              {NAV_ITEMS.map((item) => {
-                const active = isActive(item.path);
-                return (
-                  <Link
-                    key={item.id}
-                    to={item.path}
-                    onClick={() => setMobileNavOpen(false)}
-                    className={`flex items-center gap-3 w-full px-3 py-2 rounded-xs no-underline text-sm ${
-                      active ? "bg-primary-subtle text-primary-text font-medium" : "text-text-secondary hover:bg-bg-hover"
-                    }`}
-                  >
-                    <item.Icon /> {item.label}
-                  </Link>
-                );
-              })}
-            </nav>
-          </div>
-        )}
-
-        {/* Main content */}
-        <main className="flex-1 overflow-auto">{children}</main>
       </div>
+    </div>
+  );
+
+  return (
+    <div className="w-full h-screen flex bg-bg-base font-sans overflow-hidden">
+      {/* Sidebar — desktop */}
+      <aside
+        className={`hidden md:flex flex-col bg-bg-sidebar border-r border-border-subtle flex-shrink-0 transition-all duration-200 ease-in-out overflow-hidden ${
+          collapsed ? "w-[52px]" : "w-[220px]"
+        }`}
+      >
+        {sidebarContent(false)}
+      </aside>
+
+      {/* Mobile hamburger trigger */}
+      {/* <button
+        className="md:hidden fixed top-3 left-3 z-50 w-8 h-8 flex items-center justify-center bg-bg-surface border border-border-subtle rounded-xs shadow-ds-sm text-text-secondary cursor-pointer"
+        onClick={() => setMobileOpen(true)}
+      >
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+          <line
+            x1="2"
+            y1="4"
+            x2="13"
+            y2="4"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+          />
+          <line
+            x1="2"
+            y1="7.5"
+            x2="13"
+            y2="7.5"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+          />
+          <line
+            x1="2"
+            y1="11"
+            x2="13"
+            y2="11"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+          />
+        </svg>
+      </button> */}
+
+      {/* Mobile sidebar drawer */}
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 z-40 md:hidden bg-text-primary/20"
+          onClick={() => setMobileOpen(false)}
+        >
+          <aside
+            ref={mobileRef}
+            onClick={(e) => e.stopPropagation()}
+            className="h-full bg-bg-sidebar border-r border-border-subtle"
+            style={{ width: 256 }}
+          >
+            {sidebarContent(true)}
+          </aside>
+        </div>
+      )}
+
+      {/* Main content */}
+      <main className="flex-1 overflow-auto">{children}</main>
 
       {viewProfileOpen && user && (
         <ViewProfile

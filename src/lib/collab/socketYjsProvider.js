@@ -1,5 +1,9 @@
 import * as Y from "yjs";
-import { Awareness, encodeAwarenessUpdate, applyAwarenessUpdate } from "y-protocols/awareness";
+import {
+  Awareness,
+  encodeAwarenessUpdate,
+  applyAwarenessUpdate,
+} from "y-protocols/awareness";
 
 // Bridges a Y.Doc to the existing Socket.IO connection.
 // Events used (resourceType in {"report","template"}):
@@ -51,7 +55,8 @@ export class SocketYjsProvider {
 
     this._handlers[init] = ({ snapshot, updates }) => {
       this.doc.transact(() => {
-        if (snapshot) Y.applyUpdate(this.doc, _toUint8(snapshot), REMOTE_ORIGIN);
+        if (snapshot)
+          Y.applyUpdate(this.doc, _toUint8(snapshot), REMOTE_ORIGIN);
         if (updates) {
           for (const u of updates) {
             Y.applyUpdate(this.doc, _toUint8(u), REMOTE_ORIGIN);
@@ -85,18 +90,30 @@ export class SocketYjsProvider {
       if (origin === REMOTE_ORIGIN) return;
       const changed = [...added, ...updated, ...removed];
       const u = encodeAwarenessUpdate(this.awareness, changed);
-      this.socket.emit(awareness, { docReference: this.docReference, update: u });
+      this.socket.emit(awareness, {
+        docReference: this.docReference,
+        update: u,
+      });
     };
     this.awareness.on("update", this._awarenessUpdateHandler);
 
-    this.socket.emit(join, { docReference: this.docReference, ...this.joinPayload });
+    this.socket.emit(join, {
+      docReference: this.docReference,
+      ...this.joinPayload,
+    });
   }
 }
 
 function _toUint8(v) {
   if (v instanceof Uint8Array) return v;
-  if (v && v.type === "Buffer" && Array.isArray(v.data)) return new Uint8Array(v.data);
+  if (v && v.type === "Buffer" && Array.isArray(v.data))
+    return new Uint8Array(v.data);
   if (Array.isArray(v)) return new Uint8Array(v);
-  if (v && v.buffer) return new Uint8Array(v.buffer, v.byteOffset || 0, v.byteLength || v.length);
+  if (v && v.buffer)
+    return new Uint8Array(
+      v.buffer,
+      v.byteOffset || 0,
+      v.byteLength || v.length,
+    );
   return new Uint8Array(v);
 }

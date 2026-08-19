@@ -11,15 +11,19 @@ import BaseLoader from "../../components/base/BaseLoader";
 import { PrimeLogo } from "../../components/base/Icons";
 
 const FEATURES = [
+  "Real-Time collaboration",
   "Reusable report templates",
   "Role-based team access",
-  "Usage analytics",
 ];
 
 export default function AuthPage() {
   const navigate = useNavigate();
   const [isNewUser, setIsNewUser] = useState(false);
-  const [dialog, setDialog] = useState({ state: false, content: "", title: "" });
+  const [dialog, setDialog] = useState({
+    state: false,
+    content: "",
+    title: "",
+  });
   const [isLoading, setIsLoading] = useState(false);
   const [newUserData, setNewUserData] = useState({
     firstName: "",
@@ -48,7 +52,7 @@ export default function AuthPage() {
       }
       const signupResponse = await createUserWithEmailAndPasswordHandler(
         newUserData.email,
-        newUserData.password
+        newUserData.password,
       );
       await createUser({
         _id: signupResponse.user.uid,
@@ -76,9 +80,8 @@ export default function AuthPage() {
     try {
       await signInWithEmailAndPasswordHandler(
         existingUserData.email,
-        existingUserData.password
+        existingUserData.password,
       );
-      window.location.reload();
       navigate("/dashboard");
     } catch (e) {
       console.log("Error Occurred: ", e);
@@ -108,8 +111,7 @@ export default function AuthPage() {
     }
   };
 
-  const toggleDialog = () =>
-    setDialog((s) => ({ ...s, state: !s.state }));
+  const toggleDialog = () => setDialog((s) => ({ ...s, state: !s.state }));
 
   const inputCls =
     "font-sans text-[13px] text-text-primary bg-bg-surface border border-border-default rounded-xs px-2.5 py-2 outline-none w-full focus:border-primary-base focus:shadow-ds-focus transition-all";
@@ -128,29 +130,32 @@ export default function AuthPage() {
           }}
         />
         <div className="flex items-center gap-2 z-10">
-          <div className="w-7 h-7 bg-white/15 rounded border border-white/20 flex items-center justify-center">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <rect x="1" y="1" width="9" height="12" rx="0.5" stroke="white" strokeWidth="1.3" />
-              <line x1="3.5" y1="4.5" x2="8" y2="4.5" stroke="white" strokeWidth="1.1" />
-              <line x1="3.5" y1="7" x2="8" y2="7" stroke="white" strokeWidth="1.1" />
-              <line x1="3.5" y1="9.5" x2="6" y2="9.5" stroke="white" strokeWidth="1.1" />
-            </svg>
-          </div>
-          <span className="font-bold text-base text-white tracking-tight">Prime</span>
+          <span className="font-black text-4xl text-white tracking-tight">
+            Prime
+          </span>
         </div>
         <div className="flex-1 flex flex-col justify-center z-10">
           <div className="font-semibold text-3xl text-white leading-tight tracking-tight mb-4">
-            Document workflows,<br />built for teams.
+            Document workflows,
+            <br />
+            built for teams.
           </div>
           <div className="text-sm text-white/70 leading-relaxed max-w-xs">
-            Create reports from templates, manage your organization, and track usage — all in one place.
+            Create reports from templates, collaborate with your team, and
+            manage your organization. <br></br>All in one place.
           </div>
           <div className="flex flex-col gap-2.5 mt-8">
             {FEATURES.map((f) => (
               <div key={f} className="flex items-center gap-2.5">
                 <div className="w-4 h-4 rounded-full bg-white/15 flex items-center justify-center flex-shrink-0">
                   <svg width="9" height="9" viewBox="0 0 9 9" fill="none">
-                    <path d="M1.5 4.5L3.5 6.5L7.5 2.5" stroke="white" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+                    <path
+                      d="M1.5 4.5L3.5 6.5L7.5 2.5"
+                      stroke="white"
+                      strokeWidth="1.3"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
                   </svg>
                 </div>
                 <span className="text-[13px] text-white/80">{f}</span>
@@ -158,7 +163,9 @@ export default function AuthPage() {
             ))}
           </div>
         </div>
-        <div className="text-[11px] text-white/40 z-10">© 2025 Prime Reports</div>
+        <div className="text-[11px] text-white/40 z-10">
+          © 2025 Prime Reports
+        </div>
       </div>
 
       {/* RIGHT — form */}
@@ -170,7 +177,9 @@ export default function AuthPage() {
             {/* Mobile logo */}
             <div className="md:hidden mb-8 flex items-center gap-2">
               <PrimeLogo size={28} />
-              <span className="font-bold text-base text-text-primary tracking-tight">Prime</span>
+              <span className="font-bold text-base text-text-primary tracking-tight">
+                Prime
+              </span>
             </div>
 
             <div className="mb-8">
@@ -194,17 +203,31 @@ export default function AuthPage() {
               className="w-full flex items-center justify-center gap-2.5 py-2.5 px-4 bg-bg-surface border border-border-default rounded-xs font-sans text-[13px] font-medium text-text-primary cursor-pointer mb-5 shadow-ds-xs hover:bg-bg-hover transition-colors"
             >
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M15.5 8.2c0-.6-.1-1.1-.2-1.7H8v3.2h4.2a3.6 3.6 0 0 1-1.5 2.4v2h2.4c1.4-1.3 2.4-3.2 2.4-5.9Z" fill="#4285F4" />
-                <path d="M8 16c2.2 0 4-.7 5.3-2l-2.4-2a5 5 0 0 1-7.4-2.6H1v2.1A8 8 0 0 0 8 16Z" fill="#34A853" />
-                <path d="M3.5 9.4A5 5 0 0 1 3.5 6.6V4.5H1A8 8 0 0 0 1 11.5l2.5-2.1Z" fill="#FBBC05" />
-                <path d="M8 3.2a4.3 4.3 0 0 1 3 1.2l2.3-2.3A7.7 7.7 0 0 0 8 0 8 8 0 0 0 1 4.5l2.5 2.1A4.8 4.8 0 0 1 8 3.2Z" fill="#EA4335" />
+                <path
+                  d="M15.5 8.2c0-.6-.1-1.1-.2-1.7H8v3.2h4.2a3.6 3.6 0 0 1-1.5 2.4v2h2.4c1.4-1.3 2.4-3.2 2.4-5.9Z"
+                  fill="#4285F4"
+                />
+                <path
+                  d="M8 16c2.2 0 4-.7 5.3-2l-2.4-2a5 5 0 0 1-7.4-2.6H1v2.1A8 8 0 0 0 8 16Z"
+                  fill="#34A853"
+                />
+                <path
+                  d="M3.5 9.4A5 5 0 0 1 3.5 6.6V4.5H1A8 8 0 0 0 1 11.5l2.5-2.1Z"
+                  fill="#FBBC05"
+                />
+                <path
+                  d="M8 3.2a4.3 4.3 0 0 1 3 1.2l2.3-2.3A7.7 7.7 0 0 0 8 0 8 8 0 0 0 1 4.5l2.5 2.1A4.8 4.8 0 0 1 8 3.2Z"
+                  fill="#EA4335"
+                />
               </svg>
               Continue with Google
             </button>
 
             <div className="flex items-center gap-3 mb-5">
               <div className="flex-1 h-px bg-border-subtle" />
-              <span className="text-[11px] text-text-muted font-medium">or</span>
+              <span className="text-[11px] text-text-muted font-medium">
+                or
+              </span>
               <div className="flex-1 h-px bg-border-subtle" />
             </div>
 
@@ -269,7 +292,9 @@ export default function AuthPage() {
                 </div>
                 <input
                   type="password"
-                  value={isNewUser ? newUserData.password : existingUserData.password}
+                  value={
+                    isNewUser ? newUserData.password : existingUserData.password
+                  }
                   onChange={(e) => updateField(e, "password")}
                   placeholder={isNewUser ? "At least 6 characters" : "••••••••"}
                   className={inputCls}
@@ -299,8 +324,12 @@ export default function AuthPage() {
 
             <p className="text-[11px] text-text-muted text-center mt-5 leading-relaxed">
               By signing in, you agree to our{" "}
-              <span className="text-primary-base cursor-pointer">Terms</span> and{" "}
-              <span className="text-primary-base cursor-pointer">Privacy Policy</span>.
+              <span className="text-primary-base cursor-pointer">Terms</span>{" "}
+              and{" "}
+              <span className="text-primary-base cursor-pointer">
+                Privacy Policy
+              </span>
+              .
             </p>
           </div>
         )}

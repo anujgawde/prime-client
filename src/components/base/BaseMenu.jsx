@@ -35,14 +35,15 @@ const BaseMenu = ({ iconContainerClass, iconSrc, trigger, children }) => {
         className={
           iconContainerClass
             ? iconContainerClass
-            : "cursor-pointer flex items-center hover:bg-bg-hover rounded-xs p-1.5"
+            : "cursor-pointer flex items-center rounded-xs p-1.5"
         }
         onClick={toggleDropdown}
       >
-        {trigger ?? (iconSrc && <img src={iconSrc} alt="" className="h-4 w-4" />)}
+        {trigger ??
+          (iconSrc && <img src={iconSrc} alt="" className="h-4 w-4" />)}
       </div>
       {isOpen && (
-        <div className="absolute right-0 mt-1 w-48 bg-bg-surface border border-border-subtle shadow-ds-md z-10 rounded-xs overflow-hidden">
+        <div className="absolute right-0 mt-1 w-48 bg-bg-surface border border-border-subtle shadow-ds-md z-10 rounded-xs overflow-">
           {enhancedChildren}
         </div>
       )}

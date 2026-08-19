@@ -36,15 +36,16 @@
 
 body {
   margin: 0;
-  font-family: "DM Sans", system-ui, sans-serif;
+  font-family: "Inter", system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #F8F6FC;
-  color: #353148;
+  background-color: #ffffff;
+  color: #2C2C2B;
+  overflow-x: hidden;
 }
 
 code {
-  font-family: "DM Mono", "JetBrains Mono", monospace;
+  font-family: "JetBrains Mono", monospace;
 }
 
 *,
@@ -64,7 +65,7 @@ code {
   margin: 1rem;
   box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.5);
   background-color: white;
-  font-family: "DM Sans", system-ui, sans-serif;
+  font-family: "Inter", system-ui, sans-serif;
 }
 
 .container .ql-container.ql-snow {
@@ -81,7 +82,7 @@ code {
   z-index: 1;
   background-color: #ffffff;
   border: none;
-  border-bottom: 1px solid #E4E0EC;
+  border-bottom: 1px solid #E4E7EC;
 }
 
 @page {

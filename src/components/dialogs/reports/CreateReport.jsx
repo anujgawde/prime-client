@@ -13,7 +13,10 @@ export default function CreateReport({ toggleDialog, user }) {
   const location = useLocation();
   const navigate = useNavigate();
   const [activeTemplate, setActiveTemplate] = useState(null);
-  const [templates, setTemplates] = useState({ personal: [], organization: [] });
+  const [templates, setTemplates] = useState({
+    personal: [],
+    organization: [],
+  });
   const [isOrg, setIsOrg] = useState(!!user.organization);
 
   const fetchTemplates = async () => {
@@ -86,7 +89,9 @@ export default function CreateReport({ toggleDialog, user }) {
                     />
                     <span
                       className={`text-xs font-semibold ${
-                        isOrg === opt.val ? "text-primary-text" : "text-text-primary"
+                        isOrg === opt.val
+                          ? "text-primary-text"
+                          : "text-text-primary"
                       }`}
                     >
                       {opt.label}
@@ -117,7 +122,7 @@ export default function CreateReport({ toggleDialog, user }) {
           </select>
         </div>
 
-        {activeTemplate && (
+        {/* {activeTemplate && (
           <div className="px-3 py-2.5 bg-bg-subtle rounded-xs border border-border-subtle">
             <div className="text-xs font-medium text-text-primary mb-1">
               {activeTemplate.name}
@@ -128,7 +133,7 @@ export default function CreateReport({ toggleDialog, user }) {
               </div>
             )}
           </div>
-        )}
+        )} */}
       </div>
     </DialogShell>
   );

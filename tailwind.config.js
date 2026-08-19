@@ -4,33 +4,35 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['"DM Sans"', "system-ui", "sans-serif"],
-        mono: ['"DM Mono"', '"JetBrains Mono"', "monospace"],
+        sans: ['"Inter"', "system-ui", "sans-serif"],
+        mono: ['"JetBrains Mono"', "monospace"],
       },
       colors: {
         // Backgrounds
-        "bg-base": "#F8F6FC",
+        "bg-base": "#ffffff",
+        "bg-sidebar": "#F9F8F7",
         "bg-surface": "#ffffff",
-        "bg-subtle": "#f1eff8",
-        "bg-hover": "#E4E0EC",
+        "bg-subtle": "#EEF0F3",
+        "bg-hover": "#F0EFED",
+        "bg-sidebar-active": "#EAE9E5",
         // Borders
-        "border-subtle": "#E4E0EC",
-        "border-default": "#CCCAD2",
-        "border-strong": "#8E8A9C",
+        "border-subtle": "#E4E7EC",
+        "border-default": "#D0D5DD",
+        "border-strong": "#98A2B3",
         // Text
-        "text-primary": "#353148",
-        "text-secondary": "#8E8A9C",
-        "text-muted": "#CCCAD2",
-        "text-disabled": "#d8d6de",
-        // Primary (Purple Anemone)
+        "text-primary": "#2C2C2B",
+        "text-secondary": "#5F5E59",
+        "text-muted": "#8E8B86",
+        "text-disabled": "#D0D5DD",
+        // Primary (Coda Blue)
         primary: {
-          DEFAULT: "#8C60F3",
-          base: "#8C60F3",
-          hover: "#7A4EE0",
-          active: "#6A3ECE",
-          subtle: "#F8F6FC",
-          border: "#c8b5f5",
-          text: "#6A3ECE",
+          DEFAULT: "#2B6CB0",
+          base: "#2B6CB0",
+          hover: "#2563A8",
+          active: "#1D4ED8",
+          subtle: "#EFF6FF",
+          border: "#BFDBFE",
+          text: "#1E40AF",
         },
         // Semantic (CSS vars defined in index.css for OKLCH)
         success: {
@@ -85,17 +87,17 @@ module.exports = {
         "template-primary": "#ff5005",
       },
       borderRadius: {
-        xs: "8px",
-        sm: "6px",
-        md: "10px",
+        xs: "6px",
+        sm: "4px",
+        md: "8px",
       },
       boxShadow: {
         "ds-xs": "0 1px 2px rgba(0,0,0,0.05)",
-        "ds-sm": "0 1px 3px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.04)",
-        "ds-md": "0 3px 10px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04)",
-        "ds-lg": "0 8px 24px rgba(0,0,0,0.10), 0 0 0 1px rgba(0,0,0,0.04)",
-        "ds-xl": "0 16px 48px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.04)",
-        "ds-focus": "0 0 0 3px #c8b5f5",
+        "ds-sm": "0 1px 3px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.03)",
+        "ds-md": "0 4px 12px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.03)",
+        "ds-lg": "0 8px 24px rgba(0,0,0,0.09), 0 0 0 1px rgba(0,0,0,0.03)",
+        "ds-xl": "0 16px 48px rgba(0,0,0,0.11), 0 0 0 1px rgba(0,0,0,0.03)",
+        "ds-focus": "0 0 0 3px #BFDBFE",
       },
       keyframes: {
         spin: { to: { transform: "rotate(360deg)" } },
@@ -105,8 +107,8 @@ module.exports = {
           "100%": { opacity: 1, transform: "translateX(-50%) scale(1.15)" },
         },
         "badge-pulse": {
-          "0%, 100%": { boxShadow: "0 0 0 0 rgba(140,96,243,0.4)" },
-          "50%": { boxShadow: "0 0 0 8px rgba(140,96,243,0)" },
+          "0%, 100%": { boxShadow: "0 0 0 0 rgba(43,108,176,0.4)" },
+          "50%": { boxShadow: "0 0 0 8px rgba(43,108,176,0)" },
         },
       },
       animation: {

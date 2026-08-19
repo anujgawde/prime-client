@@ -2,9 +2,9 @@ const variantClasses = {
   primary:
     "bg-primary-base text-white border-primary-base hover:bg-primary-hover",
   secondary:
-    "bg-bg-surface text-text-primary border-border-default shadow-ds-xs hover:bg-bg-hover",
+    "bg-white text-text-primary border-border-default shadow-ds-xs hover:bg-bg-hover",
   ghost:
-    "bg-transparent text-text-secondary border-transparent hover:bg-bg-hover hover:text-text-primary",
+    "bg-white text-text-secondary border-border-default hover:bg-bg-hover hover:text-text-primary",
   destructive:
     "bg-error-subtle text-error-text border-error-base hover:opacity-90",
   disabled:

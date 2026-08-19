@@ -304,7 +304,7 @@ export default function LandingPage() {
   const handleGetStarted = () => navigate("/auth");
 
   return (
-    <div className="min-h-screen bg-bg-base text-text-primary font-sans overflow-x-hidden">
+    <div className="min-h-screen bg-bg-base text-text-primary font-sans">
       {/* NAV */}
       <nav
         className={`fixed top-0 left-0 right-0 z-50 px-6 md:px-12 py-4 flex items-center transition-all duration-300 ${
