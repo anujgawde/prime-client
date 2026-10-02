@@ -1,8 +1,12 @@
+<div align="center">
+
 # Prime Reports
 
-## Overview
-
 Prime is a platform for document creation and management, organizational collaboration, and personalized usage analytics. The application offers features like Firebase authentication, document management, dashboards, and organizational role-based access control.
+
+![Prime Reports](prime.gif)
+
+</div>
 
 ## Table of Contents
 
